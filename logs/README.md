@@ -1,0 +1,3 @@
+# Logs
+
+Arquivos de log.

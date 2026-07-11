@@ -1,0 +1,3 @@
+# Architecture
+
+Arquitetura da solução.
