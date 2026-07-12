@@ -13,3 +13,14 @@ def health_check() -> dict[str, str]:
         "project": settings.project_name,
         "version": settings.app_version,
     }
+
+
+@app.get("/projects")
+def list_projects() -> list[dict[str, str]]:
+    return [
+        {
+            "name": "Phoenix Hub",
+            "description": "Engineering platform for portfolio and technical projects",
+            "stack": "FastAPI, Docker, Python",
+        }
+    ]
