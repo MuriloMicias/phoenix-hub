@@ -24,3 +24,11 @@ def list_projects() -> list[dict[str, str]]:
             "stack": "FastAPI, Docker, Python",
         }
     ]
+
+
+@app.get("/metrics")
+def metrics() -> dict[str, str]:
+    return {
+        "status": "ok",
+        "service": settings.service_name,
+    }
