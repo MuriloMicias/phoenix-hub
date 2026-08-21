@@ -48,7 +48,7 @@ class ArticleOut(BaseModel):
 def health_check() -> dict[str, str]:
     return {
         'status': 'healthy',
-        'project': settings.project_name,
+        'project': settings.app_name,
         'version': settings.app_version,
     }
 
