@@ -19,6 +19,14 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
+    @property
+    def project_name(self) -> str:
+        """
+        Compatibility property: some code expects `settings.project_name`.
+        Map it to app_name to avoid AttributeError.
+        """
+        return self.app_name
+
 
 def get_settings() -> Settings:
     return Settings()
