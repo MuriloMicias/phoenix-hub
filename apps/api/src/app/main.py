@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel
 
 from app.core.settings import get_settings
@@ -51,6 +51,21 @@ def health_check() -> dict[str, str]:
         'project': settings.app_name,
         'version': settings.app_version,
     }
+
+
+@app.get('/')
+def root() -> dict[str, str]:
+    return {
+        'status': 'ok',
+        'project': settings.app_name,
+        'version': settings.app_version,
+        'message': 'Welcome to Phoenix Hub'
+    }
+
+
+@app.get('/favicon.ico')
+def favicon():
+    return RedirectResponse(url='/static/favicon.ico')
 
 
 @app.get('/projects', response_model=list[ProjectOut])
