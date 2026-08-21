@@ -1,18 +1,18 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Optional
+from pydantic import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "Phoenix Hub API"
-    app_version: str = "0.1.0"
-    project_name: str = "phoenix-hub"
-    service_name: str = "phoenix-hub-api"
+    app_name: str = "Phoenix Hub"
+    app_version: str = "0.0.0"
+    service_name: str = "phoenix-hub"
     environment: str = "development"
     debug: bool = True
 
-    # development auth helpers (defaults for local/dev only)
-    dev_user: str = "admin"
-    dev_password: str = "admin123"
-    dev_token: str = "demo-token"
+    # development auth helpers — set via environment/.env in dev only
+    dev_user: Optional[str] = None
+    dev_password: Optional[str] = None
+    dev_token: Optional[str] = None
 
     # declare minimum python runtime for contributors/CI
     min_python_version: str = "3.10"
