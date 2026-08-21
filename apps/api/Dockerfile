@@ -2,28 +2,26 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=off \
     PYTHONPATH=/app/src
 
 WORKDIR /app
 
-# instale dependências (como root)
+# Copy requirements and install
 COPY apps/api/requirements.txt ./requirements.txt
-RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev \
-    && pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt \
-    && apt-get remove -y gcc \
-    && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# copiar código
+# Copy source
 COPY apps/api/src ./src
 
-# criar user não-root e dar permissões
+# Create a non-root user and give ownership to /app
 RUN groupadd -r appuser && useradd -r -g appuser appuser \
     && chown -R appuser:appuser /app
 
+# Run as non-root
 USER appuser
 
 EXPOSE 8000
 
+# Use shell form so $PORT is expanded by the shell, with a default fallback
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --proxy-headers"]
