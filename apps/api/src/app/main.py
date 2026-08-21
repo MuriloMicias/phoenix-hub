@@ -1,9 +1,47 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
 
 from app.core.settings import get_settings
+from app.auth import get_token
 
 settings = get_settings()
 app = FastAPI(title=settings.app_name, version=settings.app_version, debug=settings.debug)
+
+
+# Response / Request models
+class ProjectOut(BaseModel):
+    name: str
+    description: str
+    stack: str
+
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+class LoginResponse(BaseModel):
+    token: str
+
+
+class ProfileUpdateRequest(BaseModel):
+    name: str
+    mission: str
+
+
+class ArticleCreateRequest(BaseModel):
+    title: str
+    slug: str
+    content: str
+    category: str
+
+
+class ArticleOut(BaseModel):
+    title: str
+    slug: str
+    category: str
+    content: str
 
 
 @app.get('/health')
@@ -15,7 +53,7 @@ def health_check() -> dict[str, str]:
     }
 
 
-@app.get('/projects')
+@app.get('/projects', response_model=list[ProjectOut])
 def list_projects() -> list[dict[str, str]]:
     return [
         {
@@ -100,9 +138,58 @@ def certifications() -> list[dict[str, str]]:
     ]
 
 
-@app.get("/metrics")
-def metrics() -> dict[str, str]:
+@app.post('/auth/login', response_model=LoginResponse)
+def login(payload: LoginRequest) -> dict[str, str]:
+    # simple dev authentication: compare with settings dev_user/dev_password
+    if payload.username == settings.dev_user and payload.password == settings.dev_password:
+        return {'token': settings.dev_token}
+    from fastapi import HTTPException, status
+
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid credentials')
+
+
+@app.put('/admin/profile', dependencies=[Depends(get_token)])
+def update_profile(payload: ProfileUpdateRequest) -> dict[str, str]:
+    return {'message': 'profile updated'}
+
+
+@app.get('/articles', response_model=list[ArticleOut])
+def list_articles() -> list[dict[str, str]]:
+    return [
+        {
+            'title': 'Knowledge Center Introduction',
+            'slug': 'knowledge-center-introduction',
+            'category': 'Engineering',
+            'content': 'A simple introduction to the knowledge center module.',
+        }
+    ]
+
+
+@app.post('/admin/articles', dependencies=[Depends(get_token)], response_model=ArticleOut)
+def create_article(payload: ArticleCreateRequest) -> dict[str, str]:
     return {
-        "status": "ok",
-        "service": settings.service_name,
+        'title': payload.title,
+        'slug': payload.slug,
+        'category': payload.category,
+        'content': payload.content,
     }
+
+
+HTML_CONTENT = """
+<html>
+  <head><title>Admin Dashboard</title></head>
+  <body>
+    <h1>Admin Dashboard</h1>
+    <p>Manage content</p>
+    <ul>
+      <li><a href='/docs'>API Docs</a></li>
+      <li><a href='/articles'>View articles</a></li>
+    </ul>
+  </body>
+</html>
+"""
+
+
+@app.get('/admin', include_in_schema=False, response_class=HTMLResponse)
+def admin_dashboard() -> str:
+    return HTML_CONTENT
