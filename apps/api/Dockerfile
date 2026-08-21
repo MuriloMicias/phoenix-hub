@@ -1,16 +1,19 @@
 # Stage 1 — build frontend with Node
 FROM node:18-alpine AS web-build
-WORKDIR /build
-# Install dependencies and build
-COPY apps/web/package.json apps/web/package-lock.json* ./  # package-lock optional
-COPY apps/web/ ./apps/web/
-# adjust working dir to apps/web for install
+# build working dir
 WORKDIR /build/apps/web
-RUN npm ci --silent || npm install --silent
+
+# Copy frontend sources (including package.json and optional lockfile)
+COPY apps/web/ ./
+
+# Install dependencies (use npm install to avoid ci failures when lockfile may be out-of-sync)
+RUN npm install --silent
+
+# Build frontend
 RUN npm run build
 
 # Stage 2 — python runtime
-FROM python:3.12-slim
+FROM python:3.12-slim AS stage-1
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app/src
