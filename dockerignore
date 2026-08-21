@@ -1,0 +1,22 @@
+# Docker build context ignores
+.git
+.github
+.vscode
+.idea
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.*
+.venv/
+venv/
+node_modules/
+tests/
+docs/
+dist/
+build/
+*.sqlite3
+.DS_Store
+.pip-wheel-metadata
+*.egg-info
