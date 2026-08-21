@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from app.core.settings import get_settings
@@ -8,6 +9,8 @@ from app.auth import get_token
 settings = get_settings()
 app = FastAPI(title=settings.app_name, version=settings.app_version, debug=settings.debug)
 
+# Mount static files (frontend build will be placed at src/static by the Dockerfile)
+app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
 # Response / Request models
 class ProjectOut(BaseModel):
@@ -15,20 +18,16 @@ class ProjectOut(BaseModel):
     description: str
     stack: str
 
-
 class LoginRequest(BaseModel):
     username: str
     password: str
 
-
 class LoginResponse(BaseModel):
     token: str
-
 
 class ProfileUpdateRequest(BaseModel):
     name: str
     mission: str
-
 
 class ArticleCreateRequest(BaseModel):
     title: str
@@ -36,13 +35,11 @@ class ArticleCreateRequest(BaseModel):
     content: str
     category: str
 
-
 class ArticleOut(BaseModel):
     title: str
     slug: str
     category: str
     content: str
-
 
 @app.get('/health')
 def health_check() -> dict[str, str]:
@@ -52,23 +49,26 @@ def health_check() -> dict[str, str]:
         'version': settings.app_version,
     }
 
-
-@app.get('/')
-def root() -> dict[str, str]:
-    return {
-        'status': 'ok',
-        'project': settings.app_name,
-        'version': settings.app_version,
-        'message': 'Welcome to Phoenix Hub'
-    }
-
+# Serve SPA index.html at root
+@app.get('/', response_class=HTMLResponse)
+def root():
+    index_path = "src/static/index.html"
+    try:
+        return FileResponse(index_path)
+    except Exception:
+        # fallback to a JSON response if file not found (during local dev before build)
+        return {
+            'status': 'ok',
+            'project': settings.app_name,
+            'version': settings.app_version,
+            'message': 'Welcome to Phoenix Hub'
+        }
 
 @app.get('/favicon.ico')
 def favicon():
-    # Return 204 No Content for favicon requests when no static file is provided
-    # This avoids repeated 404 log entries from browsers.
-    return Response(status_code=204)
-
+    # If a favicon exists in static, this will be served automatically at /static/favicon.ico
+    # Keep this for backward compatibility
+    return FileResponse('src/static/favicon.ico') if False else HTMLResponse(status_code=204)
 
 @app.get('/projects', response_model=list[ProjectOut])
 def list_projects() -> list[dict[str, str]]:
@@ -80,14 +80,12 @@ def list_projects() -> list[dict[str, str]]:
         }
     ]
 
-
 @app.get('/metrics')
 def metrics() -> dict[str, str]:
     return {
         'status': 'ok',
         'service': settings.service_name,
     }
-
 
 @app.get('/about')
 def about() -> dict[str, str]:
@@ -96,14 +94,12 @@ def about() -> dict[str, str]:
         'mission': 'Engineering platform for portfolio and technical excellence',
     }
 
-
 @app.get('/contact')
 def contact() -> dict[str, str]:
     return {
         'email': 'murilo@phoenixhub.dev',
         'location': 'Brazil',
     }
-
 
 @app.get('/resume')
 def resume() -> dict[str, str]:
@@ -112,14 +108,12 @@ def resume() -> dict[str, str]:
         'location': 'Brazil',
     }
 
-
 @app.get('/skills')
 def skills() -> list[dict[str, str]]:
     return [
         {'name': 'Python', 'category': 'Backend'},
         {'name': 'Docker', 'category': 'Infrastructure'},
     ]
-
 
 @app.get('/experience')
 def experience() -> list[dict[str, str]]:
@@ -131,7 +125,6 @@ def experience() -> list[dict[str, str]]:
         }
     ]
 
-
 @app.get('/education')
 def education() -> list[dict[str, str]]:
     return [
@@ -141,7 +134,6 @@ def education() -> list[dict[str, str]]:
             'period': '2020 - 2024',
         }
     ]
-
 
 @app.get('/certifications')
 def certifications() -> list[dict[str, str]]:
@@ -154,7 +146,6 @@ def certifications() -> list[dict[str, str]]:
         }
     ]
 
-
 @app.post('/auth/login', response_model=LoginResponse)
 def login(payload: LoginRequest) -> dict[str, str]:
     # simple dev authentication: compare with settings dev_user/dev_password
@@ -164,11 +155,9 @@ def login(payload: LoginRequest) -> dict[str, str]:
 
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid credentials')
 
-
 @app.put('/admin/profile', dependencies=[Depends(get_token)])
 def update_profile(payload: ProfileUpdateRequest) -> dict[str, str]:
     return {'message': 'profile updated'}
-
 
 @app.get('/articles', response_model=list[ArticleOut])
 def list_articles() -> list[dict[str, str]]:
@@ -181,7 +170,6 @@ def list_articles() -> list[dict[str, str]]:
         }
     ]
 
-
 @app.post('/admin/articles', dependencies=[Depends(get_token)], response_model=ArticleOut)
 def create_article(payload: ArticleCreateRequest) -> dict[str, str]:
     return {
@@ -190,7 +178,6 @@ def create_article(payload: ArticleCreateRequest) -> dict[str, str]:
         'category': payload.category,
         'content': payload.content,
     }
-
 
 HTML_CONTENT = """
 <html>
@@ -205,7 +192,6 @@ HTML_CONTENT = """
   </body>
 </html>
 """
-
 
 @app.get('/admin', include_in_schema=False, response_class=HTMLResponse)
 def admin_dashboard() -> str:
