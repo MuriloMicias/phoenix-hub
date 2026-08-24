@@ -2,15 +2,26 @@ services:
   - type: web
     name: phoenix-hub-api
     env: docker
-    # Se quiser que Render construa a imagem a partir do repo, especifique o caminho do Dockerfile:
     dockerfilePath: apps/api/Dockerfile
-    # Branch que o Render deve acompanhar / auto-deploy:
     branch: main
-    # Porta que o container expõe (uvicorn no Dockerfile usa 8000)
+    plan: free
+    healthCheckPath: /health
     envVars:
+      - key: APP_NAME
+        value: "Phoenix Hub"
+      - key: APP_VERSION
+        value: "0.1.0"
+      - key: SERVICE_NAME
+        value: "phoenix-hub"
+      - key: ENVIRONMENT
+        value: "production"
+      - key: DEBUG
+        value: "false"
       - key: PORT
         value: "8000"
-      # adicione DEV_TOKEN via UI como secret (ver instruções abaixo)
-    plan: free
-    # health check path (HTTP)
-    healthCheckPath: /health
+      - key: DEV_USER
+        value: "admin"
+      - key: DEV_PASSWORD
+        generateValue: true
+      - key: DEV_TOKEN
+        generateValue: true

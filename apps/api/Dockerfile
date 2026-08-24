@@ -1,19 +1,12 @@
 # Stage 1 — build frontend with Node
 FROM node:18-alpine AS web-build
-# build working dir
 WORKDIR /build/apps/web
-
-# Copy frontend sources (including package.json and optional lockfile)
 COPY apps/web/ ./
-
-# Install dependencies (use npm install to avoid ci failures when lockfile may be out-of-sync)
 RUN npm install --silent
-
-# Build frontend
 RUN npm run build
 
 # Stage 2 — python runtime
-FROM python:3.12-slim AS stage-1
+FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app/src
@@ -29,17 +22,14 @@ RUN pip install --upgrade pip && \
 COPY apps/api/src ./src
 
 # Copy frontend build into backend static directory
-# Vite outputs to /build/apps/web/dist, copy to /app/src/static
 COPY --from=web-build /build/apps/web/dist ./src/static
 
 # Create a non-root user and give ownership to /app
 RUN groupadd -r appuser && useradd -r -g appuser appuser \
     && chown -R appuser:appuser /app
 
-# Run as non-root
 USER appuser
 
 EXPOSE 8000
 
-# Use shell form so $PORT is expanded by the shell, with a default fallback
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --log-level info --proxy-headers"]

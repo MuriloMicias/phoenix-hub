@@ -2,8 +2,16 @@ services:
   api:
     build:
       context: ../..
-      dockerfile: apps/api/Dokerfile
+      dockerfile: apps/api/Dockerfile
     ports:
       - "8000:8000"
     environment:
-      - ENVIRONMENT=development
+      APP_NAME: "Phoenix Hub"
+      APP_VERSION: "0.1.0"
+      SERVICE_NAME: "phoenix-hub"
+      ENVIRONMENT: "development"
+      DEBUG: "true"
+      DEV_USER: "admin"
+      DEV_PASSWORD: "admin123"
+      DEV_TOKEN: "demo-token"
+      PORT: "8000"
