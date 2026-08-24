@@ -12,7 +12,7 @@ services:
       - key: APP_VERSION
         value: "0.1.0"
       - key: SERVICE_NAME
-        value: "phoenix-hub"
+        value: "phoenix-hub-api"
       - key: ENVIRONMENT
         value: "production"
       - key: DEBUG

@@ -15,6 +15,28 @@ STATIC_DIR = Path("src/static")
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
+PROJECTS = [
+    {
+        'name': 'Phoenix Hub',
+        'description': 'Engineering platform for portfolio and technical projects',
+        'stack': 'FastAPI, Docker, Python',
+    }
+]
+
+ARTICLES = [
+    {
+        'title': 'Knowledge Center Introduction',
+        'slug': 'knowledge-center-introduction',
+        'category': 'Engineering',
+        'content': 'A simple introduction to the knowledge center module.',
+    }
+]
+
+PROFILE = {
+    'name': 'Phoenix Hub',
+    'mission': 'Engineering platform',
+}
+
 # Response / Request models
 class ProjectOut(BaseModel):
     name: str
@@ -48,7 +70,7 @@ class ArticleOut(BaseModel):
 def health_check() -> dict[str, str]:
     return {
         'status': 'healthy',
-        'project': settings.app_name,
+        'project': 'phoenix-hub',
         'version': settings.app_version,
     }
 
@@ -75,13 +97,7 @@ def favicon():
 
 @app.get('/projects', response_model=list[ProjectOut])
 def list_projects() -> list[dict[str, str]]:
-    return [
-        {
-            'name': 'Phoenix Hub',
-            'description': 'Engineering platform for portfolio and technical projects',
-            'stack': 'FastAPI, Docker, Python',
-        }
-    ]
+    return PROJECTS
 
 @app.get('/metrics')
 def metrics() -> dict[str, str]:
@@ -158,37 +174,48 @@ def login(payload: LoginRequest) -> dict[str, str]:
 
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid credentials')
 
+@app.get('/admin/profile', dependencies=[Depends(get_token)])
+def get_profile() -> dict[str, str]:
+    return PROFILE
+
 @app.put('/admin/profile', dependencies=[Depends(get_token)])
 def update_profile(payload: ProfileUpdateRequest) -> dict[str, str]:
+    PROFILE['name'] = payload.name
+    PROFILE['mission'] = payload.mission
     return {'message': 'profile updated'}
 
 @app.get('/articles', response_model=list[ArticleOut])
 def list_articles() -> list[dict[str, str]]:
-    return [
-        {
-            'title': 'Knowledge Center Introduction',
-            'slug': 'knowledge-center-introduction',
-            'category': 'Engineering',
-            'content': 'A simple introduction to the knowledge center module.',
-        }
-    ]
+    return ARTICLES
 
 @app.get('/admin/summary')
 def admin_summary() -> dict[str, int | str]:
     return {
-        'projects': len(list_projects()),
-        'articles': len(list_articles()),
+        'projects': len(PROJECTS),
+        'articles': len(ARTICLES),
         'status': 'ok',
     }
 
 @app.post('/admin/articles', dependencies=[Depends(get_token)], response_model=ArticleOut)
 def create_article(payload: ArticleCreateRequest) -> dict[str, str]:
-    return {
+    new_article = {
         'title': payload.title,
         'slug': payload.slug,
         'category': payload.category,
         'content': payload.content,
     }
+    ARTICLES.insert(0, new_article)
+    return new_article
+
+@app.delete('/admin/articles/{slug}', dependencies=[Depends(get_token)])
+def delete_article(slug: str) -> dict[str, str]:
+    for index, article in enumerate(ARTICLES):
+        if article['slug'] == slug:
+            del ARTICLES[index]
+            return {'message': f'Article {slug} deleted'}
+
+    from fastapi import HTTPException, status
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Article not found')
 
 HTML_CONTENT = """
 <html>

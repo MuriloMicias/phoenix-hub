@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 
 from pydantic import AliasChoices, Field, model_validator
@@ -14,7 +15,7 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("APP_VERSION", "VERSION", "app_version"),
     )
     service_name: str = Field(
-        default="phoenix-hub",
+        default="phoenix-hub-api",
         validation_alias=AliasChoices("SERVICE_NAME", "service_name"),
     )
     environment: str = Field(
@@ -52,12 +53,12 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_runtime_requirements(self) -> "Settings":
-        env_name = (self.environment or "").lower()
+        env_name = (os.getenv("ENVIRONMENT", self.environment or "")).lower()
 
         if env_name == "production":
             missing = []
             for key in ("DEV_USER", "DEV_PASSWORD", "DEV_TOKEN"):
-                if not getattr(self, key.lower(), None):
+                if not os.getenv(key):
                     missing.append(key)
             if missing:
                 raise ValueError(
