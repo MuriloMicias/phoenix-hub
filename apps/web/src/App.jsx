@@ -6,6 +6,7 @@ function App() {
   const [currentView, setCurrentView] = useState(getCurrentView());
   const [projects, setProjects] = useState([]);
   const [articles, setArticles] = useState([]);
+  const [education, setEducation] = useState([]);
   const [summary, setSummary] = useState({ projects: 0, articles: 0, status: "ok" });
   const [token, setToken] = useState(() => localStorage.getItem("phoenix-admin-token") || "");
   const [loginForm, setLoginForm] = useState({ username: "admin", password: "" });
@@ -24,19 +25,22 @@ function App() {
 
   const loadAdminData = async () => {
     try {
-      const [projectsResponse, articlesResponse, summaryResponse, profileResponse] = await Promise.all([
+      const [projectsResponse, articlesResponse, educationResponse, summaryResponse, profileResponse] = await Promise.all([
         fetch("/projects"),
         fetch("/articles"),
+        fetch("/education"),
         fetch("/admin/summary"),
         token ? fetch("/admin/profile", { headers: { Authorization: `Bearer ${token}` } }) : Promise.resolve(null),
       ]);
 
       const nextProjects = projectsResponse ? await projectsResponse.json() : [];
       const nextArticles = articlesResponse ? await articlesResponse.json() : [];
+      const nextEducation = educationResponse ? await educationResponse.json() : [];
       const nextSummary = summaryResponse ? await summaryResponse.json() : { projects: 0, articles: 0, status: "ok" };
 
       setProjects(nextProjects);
       setArticles(nextArticles);
+      setEducation(nextEducation);
       setSummary(nextSummary);
 
       if (profileResponse && profileResponse.ok) {
@@ -50,6 +54,7 @@ function App() {
     } catch (error) {
       setProjects([]);
       setArticles([]);
+      setEducation([]);
       setSummary({ projects: 0, articles: 0, status: "ok" });
     }
   };
@@ -319,6 +324,23 @@ function App() {
               {articles.length === 0 ? <li>No articles available.</li> : articles.map((article) => <li key={article.slug}>{article.title}</li>)}
             </ul>
           </div>
+        </section>
+
+        <section style={styles.section}>
+          <h2>Professional Education</h2>
+          {education.length === 0 ? (
+            <p>No education information available.</p>
+          ) : (
+            <div style={styles.grid}>
+              {education.map((item) => (
+                <div key={`${item.institution}-${item.degree}`} style={styles.card}>
+                  <h3 style={{ marginTop: 0 }}>{item.degree}</h3>
+                  <p style={{ margin: "0 0 6px" }}>{item.institution}</p>
+                  <div style={{ color: "#a9bbd6", fontSize: 14 }}>{item.period}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </div>
