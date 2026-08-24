@@ -298,17 +298,11 @@ function App() {
             <div style={{ fontSize: 12, letterSpacing: 1.2, textTransform: "uppercase", color: "#7db0ff" }}>Engineering</div>
             <h1 style={{ margin: "8px 0 0" }}>Phoenix Hub</h1>
           </div>
-          <nav style={styles.nav}>
-            <span style={styles.link} onClick={() => handleNavigate("/")}>Home</span>
-            <span style={styles.link} onClick={() => handleNavigate("/admin")}>Admin</span>
-            <a href="/docs" style={styles.link}>API Docs</a>
-          </nav>
         </header>
 
         <section style={styles.section}>
           <h2>Professional platform and engineering lab</h2>
           <p>Cloud, DevOps, automation, platform engineering and technical innovation.</p>
-          <button style={styles.button} onClick={() => handleNavigate("/admin")}>Open Admin Dashboard</button>
         </section>
 
         <section style={styles.grid}>

@@ -11,7 +11,15 @@ from app.core.settings import get_settings
 from app.auth import get_token
 
 settings = get_settings()
-app = FastAPI(title=settings.app_name, version=settings.app_version, debug=settings.debug)
+is_production = settings.environment.lower() == "production"
+app = FastAPI(
+    title=settings.app_name,
+    version=settings.app_version,
+    debug=settings.debug,
+    docs_url=None if is_production else "/docs",
+    redoc_url=None if is_production else "/redoc",
+    openapi_url=None if is_production else "/openapi.json",
+)
 logger = logging.getLogger("phoenix_hub.auth")
 
 STATIC_DIR = Path("src/static")
@@ -240,10 +248,7 @@ HTML_CONTENT = """
   <body>
     <h1>Admin Dashboard</h1>
     <p>Manage content</p>
-    <ul>
-      <li><a href='/docs'>API Docs</a></li>
-      <li><a href='/articles'>View articles</a></li>
-    </ul>
+    <a href='/articles'>View articles</a>
   </body>
 </html>
 """
