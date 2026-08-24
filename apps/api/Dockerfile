@@ -1,5 +1,6 @@
 # Stage 1 — build frontend with Node
-FROM node:18-alpine AS web-build
+# Vite 8 requires a newer Node runtime than 18; use Node 20 for compatibility
+FROM node:20-alpine AS web-build
 WORKDIR /build/apps/web
 COPY apps/web/ ./
 RUN npm install --silent
