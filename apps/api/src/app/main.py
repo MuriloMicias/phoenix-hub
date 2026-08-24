@@ -1,3 +1,5 @@
+import logging
+import secrets
 from pathlib import Path
 
 from fastapi import FastAPI, Depends
@@ -10,6 +12,7 @@ from app.auth import get_token
 
 settings = get_settings()
 app = FastAPI(title=settings.app_name, version=settings.app_version, debug=settings.debug)
+logger = logging.getLogger("phoenix_hub.auth")
 
 STATIC_DIR = Path("src/static")
 if STATIC_DIR.exists():
@@ -167,9 +170,23 @@ def certifications() -> list[dict[str, str]]:
 
 @app.post('/auth/login', response_model=LoginResponse)
 def login(payload: LoginRequest) -> dict[str, str]:
-    # simple dev authentication: compare with settings dev_user/dev_password
-    if payload.username == settings.dev_user and payload.password == settings.dev_password:
+    # Keep comparisons timing-safe and do not log credentials. The diagnostic
+    # fields below are sufficient to troubleshoot production configuration
+    # without exposing the username/password values.
+    configured_user = settings.dev_user or ""
+    configured_password = settings.dev_password or ""
+    username_matches = secrets.compare_digest(payload.username, configured_user)
+    password_matches = secrets.compare_digest(payload.password, configured_password)
+
+    if username_matches and password_matches:
         return {'token': settings.dev_token}
+
+    logger.warning(
+        "Login rejected: username_matches=%s submitted_password_length=%d configured_password_length=%d",
+        username_matches,
+        len(payload.password),
+        len(configured_password),
+    )
     from fastapi import HTTPException, status
 
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid credentials')
