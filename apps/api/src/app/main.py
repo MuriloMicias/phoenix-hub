@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi import FastAPI, Depends
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -9,8 +11,9 @@ from app.auth import get_token
 settings = get_settings()
 app = FastAPI(title=settings.app_name, version=settings.app_version, debug=settings.debug)
 
-# Mount static files (frontend build will be placed at src/static by the Dockerfile)
-app.mount("/static", StaticFiles(directory="src/static"), name="static")
+STATIC_DIR = Path("src/static")
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 # Response / Request models
 class ProjectOut(BaseModel):
@@ -170,6 +173,14 @@ def list_articles() -> list[dict[str, str]]:
         }
     ]
 
+@app.get('/admin/summary')
+def admin_summary() -> dict[str, int | str]:
+    return {
+        'projects': len(list_projects()),
+        'articles': len(list_articles()),
+        'status': 'ok',
+    }
+
 @app.post('/admin/articles', dependencies=[Depends(get_token)], response_model=ArticleOut)
 def create_article(payload: ArticleCreateRequest) -> dict[str, str]:
     return {
@@ -194,5 +205,9 @@ HTML_CONTENT = """
 """
 
 @app.get('/admin', include_in_schema=False, response_class=HTMLResponse)
-def admin_dashboard() -> str:
-    return HTML_CONTENT
+def admin_dashboard() -> HTMLResponse:
+    index_path = "src/static/index.html"
+    try:
+        return FileResponse(index_path)
+    except Exception:
+        return HTMLResponse(content=HTML_CONTENT)
