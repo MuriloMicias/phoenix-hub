@@ -22,6 +22,8 @@ services:
       - key: DEV_USER
         value: "admin"
       - key: DEV_PASSWORD
-        generateValue: true
+        # Set this secret in the Render dashboard. A generated value is not
+        # displayed to the administrator, making the web login unusable.
+        sync: false
       - key: DEV_TOKEN
         generateValue: true

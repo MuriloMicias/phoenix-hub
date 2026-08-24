@@ -27,3 +27,14 @@ Resposta esperada:
 }
 ```
 
+## Login de administrador no Render
+
+O login usa as variáveis `DEV_USER`, `DEV_PASSWORD` e `DEV_TOKEN`. Para não
+perder acesso à senha, `DEV_PASSWORD` não é gerada automaticamente no
+Blueprint. Antes de publicar, abra o serviço no Render em **Environment** e
+defina uma senha forte para `DEV_PASSWORD`; mantenha `DEV_USER=admin` ou
+escolha outro usuário e atualize a variável também. Salve as alterações e faça
+um redeploy. `DEV_TOKEN` pode continuar como valor gerado pelo Render, pois é
+entregue pela API somente depois da autenticação.
+
+Não use as credenciais de exemplo (`admin` / `admin123`) em produção.

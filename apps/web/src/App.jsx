@@ -8,7 +8,7 @@ function App() {
   const [articles, setArticles] = useState([]);
   const [summary, setSummary] = useState({ projects: 0, articles: 0, status: "ok" });
   const [token, setToken] = useState(() => localStorage.getItem("phoenix-admin-token") || "");
-  const [loginForm, setLoginForm] = useState({ username: "admin", password: "admin123" });
+  const [loginForm, setLoginForm] = useState({ username: "admin", password: "" });
   const [profileForm, setProfileForm] = useState({ name: "Phoenix Hub", mission: "Engineering platform" });
   const [articleForm, setArticleForm] = useState({ title: "", slug: "", category: "Engineering", content: "" });
   const [status, setStatus] = useState("Ready");
@@ -22,22 +22,41 @@ function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
+  const loadAdminData = async () => {
+    try {
+      const [projectsResponse, articlesResponse, summaryResponse, profileResponse] = await Promise.all([
+        fetch("/projects"),
+        fetch("/articles"),
+        fetch("/admin/summary"),
+        token ? fetch("/admin/profile", { headers: { Authorization: `Bearer ${token}` } }) : Promise.resolve(null),
+      ]);
+
+      const nextProjects = projectsResponse ? await projectsResponse.json() : [];
+      const nextArticles = articlesResponse ? await articlesResponse.json() : [];
+      const nextSummary = summaryResponse ? await summaryResponse.json() : { projects: 0, articles: 0, status: "ok" };
+
+      setProjects(nextProjects);
+      setArticles(nextArticles);
+      setSummary(nextSummary);
+
+      if (profileResponse && profileResponse.ok) {
+        const nextProfile = await profileResponse.json();
+        setProfileForm({ name: nextProfile.name || profileForm.name, mission: nextProfile.mission || profileForm.mission });
+      } else if (profileResponse && profileResponse.status === 401) {
+        setToken("");
+        localStorage.removeItem("phoenix-admin-token");
+        setStatus("Your session has expired. Please sign in again.");
+      }
+    } catch (error) {
+      setProjects([]);
+      setArticles([]);
+      setSummary({ projects: 0, articles: 0, status: "ok" });
+    }
+  };
+
   useEffect(() => {
-    fetch("/projects")
-      .then((r) => r.json())
-      .then((data) => setProjects(data))
-      .catch(() => setProjects([]));
-
-    fetch("/articles")
-      .then((r) => r.json())
-      .then((data) => setArticles(data))
-      .catch(() => setArticles([]));
-
-    fetch("/admin/summary")
-      .then((r) => r.json())
-      .then((data) => setSummary(data))
-      .catch(() => setSummary({ projects: 0, articles: 0, status: "ok" }));
-  }, []);
+    loadAdminData();
+  }, [token]);
 
   const handleNavigate = (path) => {
     window.history.pushState({}, "", path);
@@ -74,6 +93,27 @@ function App() {
     setToken("");
     localStorage.removeItem("phoenix-admin-token");
     setStatus("Logged out");
+    setProfileMessage("Logged out.");
+  };
+
+  const handleDeleteArticle = async (slug) => {
+    try {
+      const response = await fetch(`/admin/articles/${slug}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) {
+        throw new Error("Unable to delete article");
+      }
+
+      setStatus("Article deleted");
+      setProfileMessage(`Deleted article: ${slug}`);
+      loadAdminData();
+    } catch (error) {
+      setStatus(error.message || "Delete failed");
+      setProfileMessage(error.message || "Delete failed");
+    }
   };
 
   const handleProfileSave = async (event) => {
@@ -178,9 +218,10 @@ function App() {
           {!adminReady ? (
             <section style={styles.section}>
               <h2>Login</h2>
+              <p>Use the administrator credentials configured in Render.</p>
               <form onSubmit={handleLogin} style={styles.form}>
-                <input style={styles.input} value={loginForm.username} onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })} placeholder="Username" />
-                <input type="password" style={styles.input} value={loginForm.password} onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })} placeholder="Password" />
+                <input aria-label="Username" autoComplete="username" required style={styles.input} value={loginForm.username} onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })} placeholder="Username" />
+                <input aria-label="Password" autoComplete="current-password" required type="password" style={styles.input} value={loginForm.password} onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })} placeholder="Password" />
                 <button style={styles.button} type="submit">Sign in</button>
               </form>
               {profileMessage && <p style={{ color: "#ffd8a8" }}>{profileMessage}</p>}
@@ -220,6 +261,25 @@ function App() {
                   <textarea style={styles.textarea} value={articleForm.content} onChange={(e) => setArticleForm({ ...articleForm, content: e.target.value })} placeholder="Content" />
                   <button style={styles.button} type="submit">Publish article</button>
                 </form>
+              </section>
+
+              <section style={styles.section}>
+                <h2>Published articles</h2>
+                <div style={{ display: "grid", gap: 12 }}>
+                  {articles.length === 0 ? (
+                    <p>No articles available.</p>
+                  ) : (
+                    articles.map((article) => (
+                      <div key={article.slug} style={{ ...styles.card, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+                        <div>
+                          <strong>{article.title}</strong>
+                          <div style={{ color: "#a9bbd6", fontSize: 12 }}>{article.category}</div>
+                        </div>
+                        <button style={styles.secondaryButton} onClick={() => handleDeleteArticle(article.slug)}>Delete</button>
+                      </div>
+                    ))
+                  )}
+                </div>
               </section>
 
               {profileMessage && <section style={styles.section}><p>{profileMessage}</p></section>}
