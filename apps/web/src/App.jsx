@@ -181,14 +181,17 @@ function App() {
   };
 
   const styles = {
-    page: { fontFamily: "system-ui, sans-serif", background: "#0b1020", color: "#e5ecff", minHeight: "100vh", padding: 24 },
-    shell: { maxWidth: 1200, margin: "0 auto" },
-    topbar: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 },
+    page: { fontFamily: "system-ui, sans-serif", background: "#0b1020", color: "#e5ecff", minHeight: "100vh", padding: "32px 20px 48px" },
+    shell: { maxWidth: 1120, margin: "0 auto" },
+    topbar: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 40 },
     nav: { display: "flex", gap: 12, flexWrap: "wrap" },
     link: { color: "#8bb4ff", textDecoration: "none", cursor: "pointer" },
-    section: { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: 20, marginBottom: 20 },
-    grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 },
-    card: { background: "rgba(139,180,255,0.05)", borderRadius: 12, padding: 18, border: "1px solid rgba(139,180,255,0.12)" },
+    section: { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: 24, marginBottom: 24 },
+    grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20 },
+    homeGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20, marginBottom: 24 },
+    card: { background: "rgba(139,180,255,0.05)", borderRadius: 12, padding: 20, border: "1px solid rgba(139,180,255,0.12)", boxSizing: "border-box" },
+    contentCard: { background: "rgba(139,180,255,0.05)", borderRadius: 12, padding: 20, border: "1px solid rgba(139,180,255,0.12)", boxSizing: "border-box", minHeight: 164, display: "flex", flexDirection: "column" },
+    sectionTitle: { margin: "0 0 18px", fontSize: 22 },
     button: { background: "#7c9cff", color: "#081120", border: "none", borderRadius: 10, padding: "10px 16px", cursor: "pointer", fontWeight: 700 },
     secondaryButton: { background: "transparent", color: "#dfe8ff", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "10px 16px", cursor: "pointer" },
     form: { display: "grid", gap: 12 },
@@ -306,20 +309,20 @@ function App() {
         </header>
 
         <section style={styles.section}>
-          <h2>Professional platform and engineering lab</h2>
+          <h2 style={styles.sectionTitle}>Professional platform and engineering lab</h2>
           <p>Cloud, DevOps, automation, platform engineering and technical innovation.</p>
         </section>
 
-        <section style={styles.grid}>
-          <div style={styles.card}>
-            <h3>Projects</h3>
+        <section style={styles.homeGrid}>
+          <div style={styles.contentCard}>
+            <h3 style={{ margin: "0 0 12px" }}>Projects</h3>
             <ul style={styles.list}>
               {projects.length === 0 ? <li>No projects available.</li> : projects.map((project) => <li key={project.name}>{project.name}</li>)}
             </ul>
           </div>
 
-          <div style={styles.card}>
-            <h3>Articles</h3>
+          <div style={styles.contentCard}>
+            <h3 style={{ margin: "0 0 12px" }}>Articles</h3>
             <ul style={styles.list}>
               {articles.length === 0 ? <li>No articles available.</li> : articles.map((article) => <li key={article.slug}>{article.title}</li>)}
             </ul>
@@ -327,14 +330,14 @@ function App() {
         </section>
 
         <section style={styles.section}>
-          <h2>Professional Education</h2>
+          <h2 style={styles.sectionTitle}>Professional Education</h2>
           {education.length === 0 ? (
             <p>No education information available.</p>
           ) : (
             <div style={styles.grid}>
               {education.map((item) => (
-                <div key={`${item.institution}-${item.degree}`} style={styles.card}>
-                  <h3 style={{ marginTop: 0 }}>{item.degree}</h3>
+                <div key={`${item.institution}-${item.degree}`} style={styles.contentCard}>
+                  <h3 style={{ margin: "0 0 12px" }}>{item.degree}</h3>
                   <p style={{ margin: "0 0 6px" }}>{item.institution}</p>
                   <div style={{ color: "#a9bbd6", fontSize: 14 }}>{item.period}</div>
                 </div>
