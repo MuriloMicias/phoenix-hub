@@ -330,7 +330,7 @@ function App() {
         </section>
 
         <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>Professional Education</h2>
+          <h2 style={styles.sectionTitle}>Academic Education</h2>
           {education.length === 0 ? (
             <p>No education information available.</p>
           ) : (

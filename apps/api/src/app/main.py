@@ -159,10 +159,20 @@ def experience() -> list[dict[str, str]]:
 def education() -> list[dict[str, str]]:
     return [
         {
-            'institution': 'University',
-            'degree': 'Computer Science',
-            'period': '2020 - 2024',
-        }
+            'institution': 'Universidade Braz Cubas',
+            'degree': 'Análise e Desenvolvimento de Sistemas',
+            'period': '06/2016 - 12/2018',
+        },
+        {
+            'institution': 'UNIVESP',
+            'degree': 'Bacharelado em Engenharia da Computação',
+            'period': '01/2020 - 01/2025',
+        },
+        {
+            'institution': 'UNIVESP',
+            'degree': 'Bacharelado em Tecnologia da Informação — ênfase em IoT',
+            'period': '06/2021 - 06/2024',
+        },
     ]
 
 @app.get('/certifications')
