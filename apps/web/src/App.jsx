@@ -331,8 +331,10 @@ function App() {
         </header>
 
         <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>Professional platform and engineering lab</h2>
-          <p>Cloud, DevOps, automation, platform engineering and technical innovation.</p>
+          <div style={styles.projectTag}>Professional profile</div>
+          <h2 style={{ ...styles.sectionTitle, marginTop: 14 }}>Murilo Manoel Micias</h2>
+          <p style={{ margin: "0 0 10px" }}>Cloud, DevOps, automação, engenharia de plataforma e inovação técnica.</p>
+          <p style={{ margin: 0, color: "#a9bbd6" }}>Em ingresso na pós-graduação em Engenharia de Software com IA Aplicada.</p>
         </section>
 
         <section style={styles.homeGrid}>
