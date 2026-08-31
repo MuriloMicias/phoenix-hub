@@ -155,23 +155,209 @@ def experience() -> list[dict[str, str]]:
         }
     ]
 
+def curriculum_semester(
+    semester: int, *courses: tuple[str, int | None]
+) -> dict[str, object]:
+    return {
+        'semester': semester,
+        'courses': [
+            {'name': name, 'hours': hours}
+            for name, hours in courses
+        ],
+    }
+
+
 @app.get('/education')
-def education() -> list[dict[str, str]]:
+def education() -> list[dict[str, object]]:
     return [
         {
             'institution': 'Universidade Braz Cubas',
             'degree': 'Análise e Desenvolvimento de Sistemas',
             'period': '06/2016 - 12/2018',
+            'curriculum': [
+                curriculum_semester(
+                    1,
+                    ('Algoritmos e Pensamento Computacional', 90),
+                    ('Desenvolvimento Front-end para Web', 90),
+                    ('Design Profissional', 90),
+                    ('Meio Ambiente e Cuidados de Saúde', 40),
+                    ('Modelagem de Banco de Dados', 90),
+                ),
+                curriculum_semester(
+                    2,
+                    ('Engenharia de Prompt e Aplicações em IA', 90),
+                    ('Humanidades e a População Brasileira', 40),
+                    ('Interface e Jornada do Usuário', 90),
+                    ('Programação de Computadores', 90),
+                    ('Prototipagem de Sistemas Computacionais', 90),
+                ),
+                curriculum_semester(
+                    3,
+                    ('Competências Abertas', 90),
+                    ('Desenvolvimento Back-end', 90),
+                    ('Desenvolvimento de Aplicativos Móveis', 90),
+                    ('Projeto de Software', 120),
+                    ('Optativa', 40),
+                    ('Competências Abertas', 90),
+                ),
+                curriculum_semester(
+                    4,
+                    ('Desenvolvimento de Banco de Dados', 90),
+                    ('Desenvolvimento de Sistemas de Informação', 90),
+                    ('Economia Sustentável', 100),
+                    ('Competências Abertas', 90),
+                    ('Optativa', 40),
+                    ('Competências Abertas', 90),
+                ),
+            ],
         },
         {
             'institution': 'UNIVESP',
             'degree': 'Bacharelado em Engenharia da Computação',
             'period': '01/2020 - 01/2025',
+            'curriculum': [
+                curriculum_semester(
+                    1,
+                    ('Pensamento Computacional', 80),
+                    ('Leitura e Produção de Textos', 80),
+                    ('Ética, Cidadania e Sociedade', 40),
+                    ('Matemática Básica', 80),
+                    ('Inglês', 80),
+                    ('Metodologia Científica', 40),
+                ),
+                curriculum_semester(
+                    2,
+                    ('Algoritmos e Programação de Computadores I', 80),
+                    ('Cálculo I', 80),
+                    ('Introdução a Conceitos de Computação', 40),
+                    ('Algoritmos e Programação de Computadores II', 80),
+                    ('Fundamentos Matemáticos para Computação', 80),
+                    ('Fundamentos de Web', 40),
+                ),
+                curriculum_semester(
+                    3,
+                    ('Sistemas Computacionais', 80),
+                    ('Estruturas de Dados', 80),
+                    ('Formação Profissional em Computação', 40),
+                    ('Estatística e Probabilidade', 80),
+                    ('Programação Orientada a Objetos', 80),
+                    ('Gestão da Inovação e Desenvolvimento de Produtos', 40),
+                ),
+                curriculum_semester(
+                    4,
+                    ('Projeto Integrador I', None),
+                    ('Banco de Dados', 80),
+                    ('Cálculo II', 80),
+                    ('Física do Movimento', 80),
+                    ('Circuitos Digitais', 80),
+                ),
+                curriculum_semester(
+                    5,
+                    ('Projeto Integrador II', None),
+                    ('Engenharia de Software', 80),
+                    ('Sistemas Embarcados', 80),
+                    ('Protocolos de Comunicação IoT', 80),
+                    ('Geometria Analítica e Álgebra Linear', 80),
+                ),
+                curriculum_semester(
+                    6,
+                    ('Projeto Integrador III', None),
+                    ('Infraestrutura para Sistemas de Software', 80),
+                    ('Plataforma de Análise e Desenvolvimento de Sistemas', 80),
+                    ('Desenvolvimento Web', 80),
+                    ('Interface Humano-Computador', 80),
+                ),
+                curriculum_semester(
+                    7,
+                    ('Projeto Integrador IV', None),
+                    ('Mecânica dos Sólidos e dos Fluidos', 80),
+                    ('Projeto e Análise de Algoritmos', 80),
+                    ('Processamento Digital de Sinais', 80),
+                    ('Desenvolvimento para Dispositivos Móveis', 80),
+                ),
+                curriculum_semester(
+                    8,
+                    ('Projeto Integrador V', None),
+                    ('Química Tecnológica e Ambiental', 80),
+                    ('Controle e Automação', 80),
+                    ('Planejamento Estratégico de Negócios', 80),
+                    ('Computação Escalável', 80),
+                ),
+                curriculum_semester(
+                    9,
+                    ('Projeto Integrador VI', None),
+                    ('Impactos da Computação na Sociedade', 80),
+                    ('Eletiva', 80),
+                    ('Compiladores', 80),
+                    ('Eletiva', 80),
+                ),
+                curriculum_semester(
+                    10,
+                    ('TCC', 80),
+                    ('Cidades Inteligentes', 80),
+                    ('Eletiva', 80),
+                    ('Legislação e Responsabilidade Profissional', 80),
+                    ('Eletiva', 80),
+                ),
+            ],
         },
         {
             'institution': 'UNIVESP',
             'degree': 'Bacharelado em Tecnologia da Informação — ênfase em IoT',
             'period': '06/2021 - 06/2024',
+            'curriculum': [
+                curriculum_semester(
+                    1,
+                    ('Pensamento Computacional', 80),
+                    ('Leitura e Produção de Textos', 80),
+                    ('Ética, Cidadania e Sociedade', 40),
+                    ('Matemática Básica', 80),
+                    ('Inglês', 80),
+                    ('Projetos e Métodos para a Produção do Conhecimento', 40),
+                ),
+                curriculum_semester(
+                    2,
+                    ('Algoritmos e Programação de Computadores I', 80),
+                    ('Cálculo I', 80),
+                    ('Introdução a Conceitos de Computação', 40),
+                    ('Algoritmos e Programação de Computadores II', 80),
+                    ('Fundamentos Matemáticos para Computação', 80),
+                    ('Fundamentos de Internet e Web', 40),
+                ),
+                curriculum_semester(
+                    3,
+                    ('Sistemas Computacionais', 80),
+                    ('Estruturas de Dados', 80),
+                    ('Formação Profissional em Computação', 40),
+                    ('Estatística e Probabilidade', 80),
+                    ('Programação Orientada a Objetos', 80),
+                    ('Gestão da Inovação e Desenvolvimento de Produtos', 40),
+                ),
+                curriculum_semester(
+                    4,
+                    ('Projeto Integrador I', None),
+                    ('Banco de Dados', 80),
+                    ('Infraestrutura para Sistemas de Software', 80),
+                    ('Desenvolvimento Web', 80),
+                    ('Interface Humano-Computador', 80),
+                ),
+                curriculum_semester(
+                    5,
+                    ('Projeto Integrador II', None),
+                    ('Engenharia de Software', 80),
+                    ('Segurança da Informação', 80),
+                    ('Aplicações em Aprendizado de Máquina', 80),
+                    ('Desenvolvimento para Dispositivos Móveis', 80),
+                ),
+                curriculum_semester(
+                    6,
+                    ('Projeto Integrador III', None),
+                    ('Gerência da Qualidade de Software', 80),
+                    ('Sistemas de Informação', 80),
+                    ('Computação Escalável', 80),
+                    ('Planejamento Estratégico de Negócios', 80),
+                ),
+            ],
         },
     ]
 

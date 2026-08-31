@@ -7,6 +7,7 @@ function App() {
   const [projects, setProjects] = useState([]);
   const [articles, setArticles] = useState([]);
   const [education, setEducation] = useState([]);
+  const [expandedEducationIndex, setExpandedEducationIndex] = useState(null);
   const [summary, setSummary] = useState({ projects: 0, articles: 0, status: "ok" });
   const [token, setToken] = useState(() => localStorage.getItem("phoenix-admin-token") || "");
   const [loginForm, setLoginForm] = useState({ username: "admin", password: "" });
@@ -66,6 +67,10 @@ function App() {
   const handleNavigate = (path) => {
     window.history.pushState({}, "", path);
     setCurrentView(getCurrentView());
+  };
+
+  const toggleEducationCurriculum = (index) => {
+    setExpandedEducationIndex((current) => (current === index ? null : index));
   };
 
   const handleLogin = async (event) => {
@@ -192,6 +197,12 @@ function App() {
     card: { background: "rgba(139,180,255,0.05)", borderRadius: 12, padding: 20, border: "1px solid rgba(139,180,255,0.12)", boxSizing: "border-box" },
     contentCard: { background: "rgba(139,180,255,0.05)", borderRadius: 12, padding: 20, border: "1px solid rgba(139,180,255,0.12)", boxSizing: "border-box", minHeight: 164, display: "flex", flexDirection: "column" },
     sectionTitle: { margin: "0 0 18px", fontSize: 22 },
+    curriculumButton: { alignSelf: "flex-start", marginTop: "auto", padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(139,180,255,0.35)", background: "rgba(139,180,255,0.08)", color: "#b9d0ff", cursor: "pointer", fontWeight: 700 },
+    curriculumPanel: { gridColumn: "1 / -1", background: "rgba(8,17,32,0.52)", border: "1px solid rgba(139,180,255,0.16)", borderRadius: 12, padding: 16 },
+    curriculumGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 },
+    semesterCard: { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: 14 },
+    courseList: { listStyle: "none", padding: 0, margin: "10px 0 0", display: "grid", gap: 8 },
+    courseRow: { display: "flex", justifyContent: "space-between", gap: 12, color: "#dfe8ff", fontSize: 14 },
     button: { background: "#7c9cff", color: "#081120", border: "none", borderRadius: 10, padding: "10px 16px", cursor: "pointer", fontWeight: 700 },
     secondaryButton: { background: "transparent", color: "#dfe8ff", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "10px 16px", cursor: "pointer" },
     form: { display: "grid", gap: 12 },
@@ -335,13 +346,53 @@ function App() {
             <p>No education information available.</p>
           ) : (
             <div style={styles.grid}>
-              {education.map((item) => (
-                <div key={`${item.institution}-${item.degree}`} style={styles.contentCard}>
-                  <h3 style={{ margin: "0 0 12px" }}>{item.degree}</h3>
-                  <p style={{ margin: "0 0 6px" }}>{item.institution}</p>
-                  <div style={{ color: "#a9bbd6", fontSize: 14 }}>{item.period}</div>
-                </div>
-              ))}
+              {education.map((item, index) => {
+                const isExpanded = expandedEducationIndex === index;
+                const curriculumId = `education-curriculum-${index}`;
+
+                return (
+                  <div key={`${item.institution}-${item.degree}`} style={styles.contentCard}>
+                    <h3 style={{ margin: "0 0 12px" }}>{item.degree}</h3>
+                    <p style={{ margin: "0 0 6px" }}>{item.institution}</p>
+                    <div style={{ color: "#a9bbd6", fontSize: 14 }}>{item.period}</div>
+                    {item.curriculum?.length > 0 && (
+                      <button
+                        aria-controls={curriculumId}
+                        aria-expanded={isExpanded}
+                        onClick={() => toggleEducationCurriculum(index)}
+                        style={styles.curriculumButton}
+                        type="button"
+                      >
+                        {isExpanded ? "Hide curriculum" : "View curriculum"}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+              {education.map((item, index) => {
+                if (expandedEducationIndex !== index) return null;
+
+                return (
+                  <div id={`education-curriculum-${index}`} key={`curriculum-${item.degree}`} style={styles.curriculumPanel}>
+                    <strong>Curriculum</strong>
+                    <div style={{ ...styles.curriculumGrid, marginTop: 14 }}>
+                      {item.curriculum.map((semester) => (
+                        <article key={semester.semester} style={styles.semesterCard}>
+                          <strong>{semester.semester}º semester</strong>
+                          <ul style={styles.courseList}>
+                            {semester.courses.map((course, courseIndex) => (
+                              <li key={`${course.name}-${courseIndex}`} style={styles.courseRow}>
+                                <span>{course.name}</span>
+                                {course.hours && <span style={{ color: "#8bb4ff", whiteSpace: "nowrap" }}>{course.hours}h</span>}
+                              </li>
+                            ))}
+                          </ul>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </section>
