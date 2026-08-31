@@ -31,7 +31,42 @@ PROJECTS = [
         'name': 'Phoenix Hub',
         'description': 'Engineering platform for portfolio and technical projects',
         'stack': 'FastAPI, Docker, Python',
-    }
+        'category': 'platform',
+        'repository_url': 'https://github.com/MuriloMicias/phoenix-hub',
+    },
+    {
+        'name': 'CortexOps',
+        'description': (
+            'Plataforma de IA para DevOps, SRE e Operações, voltada à análise '
+            'de ambientes, observabilidade, automação e apoio à tomada de decisões '
+            'sobre infraestrutura e aplicações.'
+        ),
+        'stack': 'AI, DevOps, SRE, Observability',
+        'category': 'ai',
+        'repository_url': 'https://github.com/projects-techuser/CortexOps',
+    },
+    {
+        'name': 'TIATESTER',
+        'description': (
+            'Plataforma de IA para Qualidade e Testes de Software, capaz de analisar '
+            'sistemas, requisitos e código para apoiar a criação, execução, cobertura '
+            'e análise de testes.'
+        ),
+        'stack': 'AI, Quality Engineering, Testing',
+        'category': 'ai',
+        'repository_url': 'https://github.com/projects-techuser/TIATESTER',
+    },
+    {
+        'name': 'REQORA',
+        'description': (
+            'Plataforma de IA para Engenharia de Requisitos, focada na análise, '
+            'organização, rastreabilidade e relacionamento de requisitos, com '
+            'identificação de conflitos, impactos, riscos e apoio à tomada de decisões.'
+        ),
+        'stack': 'AI, Requirements Engineering, Traceability',
+        'category': 'ai',
+        'repository_url': 'https://github.com/projects-techuser/REQORA',
+    },
 ]
 
 ARTICLES = [
@@ -53,6 +88,8 @@ class ProjectOut(BaseModel):
     name: str
     description: str
     stack: str
+    category: str
+    repository_url: str
 
 class LoginRequest(BaseModel):
     username: str

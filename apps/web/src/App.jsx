@@ -8,6 +8,7 @@ function App() {
   const [articles, setArticles] = useState([]);
   const [education, setEducation] = useState([]);
   const [expandedEducationIndex, setExpandedEducationIndex] = useState(null);
+  const [selectedAiProjectName, setSelectedAiProjectName] = useState("CortexOps");
   const [summary, setSummary] = useState({ projects: 0, articles: 0, status: "ok" });
   const [token, setToken] = useState(() => localStorage.getItem("phoenix-admin-token") || "");
   const [loginForm, setLoginForm] = useState({ username: "admin", password: "" });
@@ -17,6 +18,9 @@ function App() {
   const [profileMessage, setProfileMessage] = useState("");
 
   const adminReady = useMemo(() => Boolean(token), [token]);
+  const aiProjects = useMemo(() => projects.filter((project) => project.category === "ai"), [projects]);
+  const showcaseProjects = useMemo(() => projects.filter((project) => project.category !== "ai"), [projects]);
+  const selectedAiProject = aiProjects.find((project) => project.name === selectedAiProjectName) || aiProjects[0];
 
   useEffect(() => {
     const onPopState = () => setCurrentView(getCurrentView());
@@ -203,6 +207,13 @@ function App() {
     semesterCard: { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: 14 },
     courseList: { listStyle: "none", padding: 0, margin: "10px 0 0", display: "grid", gap: 8 },
     courseRow: { display: "flex", justifyContent: "space-between", gap: 12, color: "#dfe8ff", fontSize: 14 },
+    aiLab: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20, alignItems: "stretch" },
+    aiProjectList: { display: "grid", gap: 10, alignContent: "start" },
+    aiProjectOption: { width: "100%", textAlign: "left", background: "rgba(139,180,255,0.04)", color: "#dfe8ff", border: "1px solid rgba(139,180,255,0.16)", borderRadius: 10, padding: "14px 16px", cursor: "pointer" },
+    aiProjectOptionActive: { background: "rgba(124,156,255,0.18)", border: "1px solid rgba(139,180,255,0.58)", color: "#ffffff" },
+    aiProjectDetail: { background: "rgba(139,180,255,0.05)", border: "1px solid rgba(139,180,255,0.16)", borderRadius: 12, padding: 20, display: "flex", flexDirection: "column", minHeight: 220, boxSizing: "border-box" },
+    projectTag: { display: "inline-block", width: "fit-content", padding: "5px 9px", borderRadius: 999, background: "rgba(84,211,154,0.12)", color: "#7ef0b8", fontSize: 12, fontWeight: 700 },
+    repositoryLink: { display: "inline-block", width: "fit-content", marginTop: "auto", padding: "10px 14px", background: "#7c9cff", color: "#081120", borderRadius: 9, fontWeight: 700, textDecoration: "none" },
     button: { background: "#7c9cff", color: "#081120", border: "none", borderRadius: 10, padding: "10px 16px", cursor: "pointer", fontWeight: 700 },
     secondaryButton: { background: "transparent", color: "#dfe8ff", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "10px 16px", cursor: "pointer" },
     form: { display: "grid", gap: 12 },
@@ -328,7 +339,7 @@ function App() {
           <div style={styles.contentCard}>
             <h3 style={{ margin: "0 0 12px" }}>Projects</h3>
             <ul style={styles.list}>
-              {projects.length === 0 ? <li>No projects available.</li> : projects.map((project) => <li key={project.name}>{project.name}</li>)}
+              {showcaseProjects.length === 0 ? <li>No projects available.</li> : showcaseProjects.map((project) => <li key={project.name}>{project.name}</li>)}
             </ul>
           </div>
 
@@ -339,6 +350,41 @@ function App() {
             </ul>
           </div>
         </section>
+
+        {selectedAiProject && (
+          <section style={styles.section}>
+            <h2 style={styles.sectionTitle}>AI Lab</h2>
+            <div style={styles.aiLab}>
+              <div style={styles.aiProjectList} aria-label="AI projects">
+                {aiProjects.map((project) => {
+                  const isSelected = project.name === selectedAiProject.name;
+
+                  return (
+                    <button
+                      aria-pressed={isSelected}
+                      key={project.name}
+                      onClick={() => setSelectedAiProjectName(project.name)}
+                      style={{ ...styles.aiProjectOption, ...(isSelected ? styles.aiProjectOptionActive : {}) }}
+                      type="button"
+                    >
+                      <strong>{project.name}</strong>
+                      <div style={{ color: isSelected ? "#dfe8ff" : "#a9bbd6", fontSize: 12, marginTop: 4 }}>{project.stack}</div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <article style={styles.aiProjectDetail}>
+                <span style={styles.projectTag}>AI project</span>
+                <h3 style={{ margin: "14px 0 10px", fontSize: 26 }}>{selectedAiProject.name}</h3>
+                <p style={{ margin: 0, color: "#dfe8ff", lineHeight: 1.6 }}>{selectedAiProject.description}</p>
+                <a href={selectedAiProject.repository_url} rel="noreferrer" style={styles.repositoryLink} target="_blank">
+                  View repository
+                </a>
+              </article>
+            </div>
+          </section>
+        )}
 
         <section style={styles.section}>
           <h2 style={styles.sectionTitle}>Academic Education</h2>
